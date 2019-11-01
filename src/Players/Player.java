@@ -101,7 +101,7 @@ public abstract class Player {
 //                }
 //            }
             if (result) {
-                piece = createPiece(board.getSquares()[curX][finY].getPiece());
+                piece = createPiece(board.getSquares()[finX][finY].getPiece());
                 doMove(curX, curY, finX, finY);
                 if (inCheck(board.getSquares()[finX][finY].getPiece().colour)) {
                     result = false;
@@ -119,7 +119,7 @@ public abstract class Player {
         if (piece != null) {
             piece.setSquare(board.getSquares()[finX][finY]);
         }
-        board.getSquares()[curX][curY].getPiece().updatePiece(curX, finY);
+        board.getSquares()[curX][curY].getPiece().updatePiece(curX, curY);
         board.turn = !board.turn;
         updatePieces();
     }
@@ -271,9 +271,12 @@ public abstract class Player {
 
     public void checkMate() {
         boolean result = true;
+        updatePieces();
         for (int i = 0; i < 7; i++) {
             for (int j = 0; j < 7; j++) {
+                if(board.getSquares()[i][j].getPiece() != null){
 
+                }
             }
         }
     }
