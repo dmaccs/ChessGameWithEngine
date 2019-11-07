@@ -5,6 +5,8 @@ import Pieces.Piece;
 public class Square {
     private Piece currentPiece;
     private Board board;
+    public int x;
+    public int y;
 
     Square() {
         currentPiece = null;

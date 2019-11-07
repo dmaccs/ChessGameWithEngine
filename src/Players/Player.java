@@ -1,10 +1,14 @@
 package Players;
 
 import Game.Board;
+import Game.Square;
 import Pieces.*;
+
+import java.util.List;
 
 public abstract class Player {
     public Board board;
+    public boolean checkMate = false;
 
     public Player() {
         board = null;
@@ -15,15 +19,27 @@ public abstract class Player {
     }
 
     public void makeMove(int curX, int curY, int finX, int finY) {
-        if (curX == finX && curY == finY) {
-            return;
+        if(board.getSquares()[curX][curY].getPiece() != null && board.getSquares()[curX][curY].getPiece().colour == board.turn) {
+            if (!checkMate) {
+                if (curX == finX && curY == finY) {
+                    return;
+                }
+                updatePieces();
+                if (validMove(curX, curY, finX, finY)) {
+                    System.out.println("player.makeMove(" + curX + "," + curY + "," + finX + "," + finY + ");");
+                    // System.out.println(board.en_passant[0] +  "," + board.en_passant[1]);
+                }
+                if (inCheck(board.turn)) {
+                    checkMate();
+                }
+            }
+            if (checkMate) {
+                System.out.println("Checkmate!");
+            }
         }
-        validMove(curX, curY, finX, finY);
-        updatePieces();
     }
 
     public void doMove(int curX, int curY, int finX, int finY) {
-        if (board.getSquares()[curX][curY].getPiece().colour == board.turn) {
             if (board.getSquares()[curX][curY].getPiece() instanceof Pawn && board.en_passant[0] != null) {
                 if (board.en_passant[0] == finX && Math.abs(curX - board.en_passant[0]) == 1 && board.en_passant[1] == curY) {
                     board.getSquares()[board.en_passant[0]][board.en_passant[1]].setPiece(null);
@@ -36,8 +52,8 @@ public abstract class Player {
                 board.en_passant[0] = null;
                 board.en_passant[1] = null;
             }
-            if (board.getSquares()[curX][curY].getPiece() instanceof King && Math.abs(curX - finX) == 2) {
-                if(curX - finX > 0){
+            if (board.getSquares()[curX][curY].getPiece() instanceof King && Math.abs(curX - finX) == 2) { //castling
+                if (curX - finX > 0) {
                     board.getSquares()[3][curY].setPiece(board.getSquares()[0][curY].getPiece());
                     board.getSquares()[3][curY].getPiece().setSquare(board.getSquares()[3][curY]);
                     board.getSquares()[3][curY].getPiece().updatePiece(3, curY);
@@ -49,7 +65,7 @@ public abstract class Player {
                     board.getSquares()[7][curY].setPiece(null);
                 }
             }
-            if (board.getSquares()[curX][curY].getPiece() instanceof Pawn && (finY == 7 || finY == 0)) {
+            if (board.getSquares()[curX][curY].getPiece() instanceof Pawn && (finY == 7 || finY == 0)) { //promotion
                 boolean colour = board.getSquares()[curX][curY].getPiece().colour;
                 switch (board.promotion) {
                     case Queen:
@@ -66,53 +82,40 @@ public abstract class Player {
                         break;
                 }
             }
-            board.getSquares()[finX][finY].setPiece(board.getSquares()[curX][curY].getPiece());
+            board.getSquares()[finX][finY].setPiece(board.getSquares()[curX][curY].getPiece()); // update board
             board.getSquares()[finX][finY].getPiece().setSquare(board.getSquares()[finX][finY]);
             board.getSquares()[finX][finY].getPiece().updatePiece(finX, finY);
             board.getSquares()[curX][curY].setPiece(null);
             board.turn = !board.turn;
-            updatePieces();
-        }
-    }
 
-    public Boolean validMove(int curX, int curY, int finX, int finY) {
-        updatePieces();
-        boolean result = false;
+
+        }
+
+    public boolean validMove(int curX, int curY, int finX, int finY) {
         Piece piece = board.getSquares()[curX][curY].getPiece();
-        updatePiece(piece);
-        if (piece != null && piece.colour == board.turn) {
+        boolean result = false;
+        if (piece != null) {
             if (piece.moves().contains(board.getSquares()[finX][finY])) {
                 result = true;
             }
-//            if (piece.legalMove(finX, finY)) {
-//                Integer[] positions = piece.getContacts(finX, finY);
-//                result = true;
-//                for (int i = 0; i < positions.length - 1; i++) {
-//                    int j = positions[i];
-//                    if (board.getSquares()[j / 10][j % 10].getPiece() != null) {
-//                        result = false;
-//                    }
-//                }
-//                Piece pieceI = board.getSquares()[(positions[positions.length - 1]) / 10][(positions[positions.length - 1]) % 10].getPiece();
-//                if (pieceI != null) {
-//                    if (board.getSquares()[curX][curY].getPiece() instanceof Pawn && curX == finX) {
-//                        result = false;
-//                    }
-//                }
-//            }
             if (result) {
                 piece = createPiece(board.getSquares()[finX][finY].getPiece());
+                Integer[] enPassant = new Integer[2];
+                Integer x = board.en_passant[0];
+                Integer y = board.en_passant[1];
+                enPassant[0] = x;
+                enPassant[1] = y;
                 doMove(curX, curY, finX, finY);
                 if (inCheck(board.getSquares()[finX][finY].getPiece().colour)) {
                     result = false;
-                    revertMove(curX, curY, finX, finY, piece);
+                    revertMove(curX, curY, finX, finY, piece, enPassant);
                 }
             }
         }
         return result;
     }
 
-    public void revertMove(int curX, int curY, int finX, int finY, Piece piece) {
+    public void revertMove(int curX, int curY, int finX, int finY, Piece piece, Integer[] enPassant) {
         board.getSquares()[curX][curY].setPiece(board.getSquares()[finX][finY].getPiece());
         board.getSquares()[curX][curY].getPiece().setSquare(board.getSquares()[curX][curY]);
         board.getSquares()[finX][finY].setPiece(piece);
@@ -121,7 +124,7 @@ public abstract class Player {
         }
         board.getSquares()[curX][curY].getPiece().updatePiece(curX, curY);
         board.turn = !board.turn;
-        updatePieces();
+        board.en_passant = enPassant;
     }
 
     public Piece createPiece(Piece piece) {
@@ -157,28 +160,14 @@ public abstract class Player {
     }
 
     public Boolean validMoveCheckBoard(int curX, int curY, int finX, int finY) {
-        boolean result = false;
+        updatePieces();
         Piece piece = board.getSquares()[curX][curY].getPiece();
-        updatePiece(piece);
-        if (piece != null && piece.colour == board.turn) {
-            if (piece.legalMove(finX, finY)) {
-                Integer[] positions = piece.getContacts(finX, finY);
-                result = true;
-                for (int i = 0; i < positions.length - 1; i++) {
-                    int j = positions[i];
-                    if (board.getSquares()[j / 10][j % 10].getPiece() != null) {
-                        result = false;
-                    }
-                }
-                Piece pieceI = board.getSquares()[(positions[positions.length - 1]) / 10][(positions[positions.length - 1]) % 10].getPiece();
-                if (pieceI != null) {
-                    if (board.getSquares()[curX][curY].getPiece() instanceof Pawn && curX == finX) {
-                        result = false;
-                    }
-                }
+        if (piece != null) {
+            if (piece.moves().contains(board.getSquares()[finX][finY])) {
+                return true;
             }
         }
-        return result;
+        return false;
     }
 
     public boolean inCheck(boolean turn) {
@@ -208,57 +197,6 @@ public abstract class Player {
         return result;
     }
 
-    public void updatePiece(Piece piece) {
-        if (piece instanceof Pawn) {
-            boolean CTL = false;
-            boolean CTR = false;
-            if (piece.colour) {
-                if (piece.posX != 0 && piece.posY != 0) {
-                    if (board.getSquares()[piece.posX - 1][piece.posY - 1].getPiece() != null) {
-                        CTL = true;
-                    }
-                    if (board.en_passant[0] != null) {
-                        if ((piece.posX - 1) == board.en_passant[0] && (piece.posY == board.en_passant[1])) {
-                            CTL = true;
-                        }
-                    }
-                }
-                if (piece.posX != 7) {
-                    if (board.getSquares()[piece.posX + 1][piece.posY - 1].getPiece() != null) {
-                        CTR = true;
-                    }
-                    if (board.en_passant[0] != null) {
-                        if ((piece.posX + 1) == board.en_passant[0] && (piece.posY == board.en_passant[1])) {
-                            CTR = true;
-                        }
-                    }
-                }
-            } else {
-                if (piece.posX != 0 && piece.posY != 7) {
-                    if (board.getSquares()[piece.posX - 1][piece.posY + 1].getPiece() != null) {
-                        CTL = true;
-                    }
-                    if (board.en_passant[0] != null) {
-                        if ((piece.posX - 1) == board.en_passant[0] && (piece.posY == board.en_passant[1])) {
-                            CTL = true;
-                        }
-                    }
-                }
-                if (piece.posX != 7) {
-                    if (board.getSquares()[piece.posX + 1][piece.posY + 1].getPiece() != null) {
-                        CTR = true;
-                    }
-                    if (board.en_passant[0] != null) {
-                        if ((piece.posX + 1) == board.en_passant[0] && (piece.posY == board.en_passant[1])) {
-                            CTR = true;
-                        }
-                    }
-                }
-            }
-            ((Pawn) piece).setCanTake(CTL, CTR);
-        }
-    }
-
     public void updatePieces() {
         for (int i = 0; i < 8; i++) {
             for (int j = 0; j < 8; j++) {
@@ -270,14 +208,27 @@ public abstract class Player {
     }
 
     public void checkMate() {
-        boolean result = true;
         updatePieces();
         for (int i = 0; i < 7; i++) {
             for (int j = 0; j < 7; j++) {
-                if(board.getSquares()[i][j].getPiece() != null){
-
+                if (board.getSquares()[i][j].getPiece() != null && board.getSquares()[i][j].getPiece().colour == board.turn) {
+                    List<Square> squares = board.getSquares()[i][j].getPiece().possibleMoves();
+                    for (Square square : squares) {
+                        Piece piece = createPiece(board.getSquares()[square.x][square.y].getPiece());
+                        Integer[] enPassant = new Integer[2];
+                        Integer x = board.en_passant[0];
+                        Integer y = board.en_passant[1];
+                        enPassant[0] = x;
+                        enPassant[1] = y;
+                        updatePieces();
+                        if (validMove(i, j, square.x, square.y)) {
+                            revertMove(i, j, square.x, square.y, piece, enPassant);
+                            return;
+                        }
+                    }
                 }
             }
         }
+        checkMate = true;
     }
 }

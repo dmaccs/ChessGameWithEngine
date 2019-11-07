@@ -57,37 +57,6 @@ public class King extends Piece {
         return possibleMoves;
     }
 
-    @Override
-    public Boolean legalMove(int x, int y) {
-        if (!hasMoved) {
-            return ((super.legalMove(x, y) && (Math.abs(posX - x) <= 1 && Math.abs(posY - y) <= 1)) || ((posY - y) == 0 && Math.abs(posX - x) == 2));
-        }
-        return (super.legalMove(x, y) && (Math.abs(posX - x) <= 1 && Math.abs(posY - y) <= 1));
-    }
-
-    @Override
-    public Integer[] getContacts(int x, int y) {
-        if (!hasMoved) {
-            if ((posX - x) == -2) {
-                Integer[] positions = new Integer[3];
-                positions[0] = (posX + 1) * 10 + y;
-                positions[1] = (posX + 2) * 10 + y;
-                positions[2] = (posX + 3) * 10 + y;
-                return positions;
-            }
-            if ((posX - x) == 2) {
-                Integer[] positions = new Integer[4];
-                positions[0] = (posX - 1) * 10 + y;
-                positions[1] = (posX - 2) * 10 + y;
-                positions[2] = (posX - 3) * 10 + y;
-                positions[3] = (posX - 4) * 10 + y;
-                return positions;
-            }
-        }
-        Integer[] positions = new Integer[1];
-        positions[0] = x * 10 + y;
-        return positions;
-    }
 
     public String toString() {
         if (colour) {

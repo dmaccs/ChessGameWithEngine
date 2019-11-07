@@ -16,30 +16,7 @@ public class Game {
         window.add(ui);
         window.setSize(496, 575);
         window.setVisible(true);
-//        System.out.println(board);
-//        player.makeMove(6,6,6,5);
-//        System.out.println(board);
-//        player.makeMove(6,1,6,2);
-//        System.out.println(board);
-//        player.makeMove(5,7,6,6);
-//        System.out.println(board);
-//        player.makeMove(5,0,6,1);
-//        System.out.println(board);
-//        player.makeMove(6,7,5,5);
-//        System.out.println(board);
-//        player.makeMove(6,0,5,2);
-//        System.out.println(board);
-//        player.makeMove(4,7,6,7);
-//        System.out.println(board);
-//        player.makeMove(4,0,6,0);
-//        System.out.println(board);
-//        player.makeMove(5,7,4,7);
-//        System.out.println(board);
-//        player.makeMove(7,1,7,2);
-//        System.out.println(board);
-//        player.makeMove(6,0,7,2);
-//        System.out.println(board);
     }
 
 }
-//TODO: check(not working) - checkmate
+//TODO: Engine

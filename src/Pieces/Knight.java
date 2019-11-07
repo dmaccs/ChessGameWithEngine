@@ -57,18 +57,6 @@ public class Knight extends Piece {
         return possibleMoves;
     }
 
-    @Override
-    public Integer[] getContacts(int x, int y) {
-        Integer[] positions = new Integer[1];
-        positions[0] = x * 10 + y;
-        return positions;
-    }
-
-    @Override
-    public Boolean legalMove(int x, int y) {
-        return (super.legalMove(x, y) && ((Math.abs(posX - x) == 1 && Math.abs(posY - y) == 2) || (Math.abs(posX - x) == 2 && Math.abs(posY - y) == 1)));
-    }
-
     public String toString() {
         if (colour) {
             return "N";

@@ -65,49 +65,6 @@ public class Bishop extends Piece {
         return possibleMoves;
         }
 
-    @Override
-    public Integer[] getContacts(int x, int y) {
-        Integer[] positions;
-        int i = x;
-        int j = y;
-        int k = 0;
-        positions = new Integer[Math.abs(posX - x)];
-        if (x < posX && y < posY) {
-            while (posX - i > 0) {
-                positions[positions.length - 1 - k] = i * 10 + j;
-                i++;
-                j++;
-                k++;
-            }
-        } else if (x < posX && y > posY) {
-            while (posX - i > 0) {
-                positions[positions.length - 1 - k] = i * 10 + j;
-                i++;
-                j--;
-                k++;
-            }
-        } else if (x > posX && y < posY) {
-            while (posX - i < 0) {
-                positions[positions.length - 1 - k] = i * 10 + j;
-                i--;
-                j++;
-                k++;
-            }
-        } else if (x > posX && y > posY) {
-            while (posX - i < 0) {
-                positions[positions.length - 1 - k] = i * 10 + j;
-                i--;
-                j--;
-                k++;
-            }
-        }
-        return positions;
-    }
-
-    @Override
-    public Boolean legalMove(int x, int y) {
-        return (super.legalMove(x,y) && Math.abs(posX - x) == Math.abs(posY - y));
-    }
 
     public String toString() {
         if (colour) {

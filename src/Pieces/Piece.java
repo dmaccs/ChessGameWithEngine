@@ -31,15 +31,6 @@ public abstract class Piece {
         this.hasMoved = piece.hasMoved;
     }
 
-    public abstract Integer[] getContacts(int x, int y);
-
-    public Boolean legalMove(int x, int y){
-        if(x == posX && y == posY || x < 0 || x > 7 || y < 0 || y > 7){
-            return false;
-        }
-        return true;
-    }
-
     public void updatePiece(int newX, int newY) {
         this.posX = newX;
         this.posY = newY;
