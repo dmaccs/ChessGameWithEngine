@@ -8,6 +8,7 @@ import java.util.List;
 public class Knight extends Piece {
     public Knight(boolean colour, int x, int y) {
         super(colour, x, y);
+        this.value = 30;
     }
 
     public Knight(Piece piece) {

@@ -9,18 +9,20 @@ public class Rook extends Piece {
 
     public Rook(boolean colour, int x, int y) {
         super(colour, x, y);
+        this.value = 50;
     }
-    public Rook(Piece piece){
+
+    public Rook(Piece piece) {
         super(piece);
     }
 
-    public List<Square> possibleMoves(){
+    public List<Square> possibleMoves() {
         List<Square> possibleMoves = new ArrayList<>();
-        for(int i = posX, j = posY + 1; j < 8; j++){ // Down
+        for (int i = posX, j = posY + 1; j < 8; j++) { // Down
             Square square = super.getSquare().getBoard().getSquares()[i][j];
-            if(square.getPiece() == null){
+            if (square.getPiece() == null) {
                 possibleMoves.add(square);
-            } else if (square.getPiece().colour != this.colour){
+            } else if (square.getPiece().colour != colour) {
                 possibleMoves.add(square);
                 break;
             } else {
@@ -28,11 +30,11 @@ public class Rook extends Piece {
             }
 
         }
-        for(int i = posX, j = posY - 1; j > - 1; j--){ // Up
+        for (int i = posX, j = posY - 1; j > -1; j--) { // Up
             Square square = super.getSquare().getBoard().getSquares()[i][j];
-            if(square.getPiece() == null){
+            if (square.getPiece() == null) {
                 possibleMoves.add(square);
-            } else if (square.getPiece().colour != this.colour){
+            } else if (square.getPiece().colour != colour) {
                 possibleMoves.add(square);
                 break;
             } else {
@@ -40,11 +42,11 @@ public class Rook extends Piece {
             }
 
         }
-        for(int i = posX + 1, j = posY; i < 8; i++){ // Right
+        for (int i = posX + 1, j = posY; i < 8; i++) { // Right
             Square square = super.getSquare().getBoard().getSquares()[i][j];
-            if(square.getPiece() == null){
+            if (square.getPiece() == null) {
                 possibleMoves.add(square);
-            } else if (square.getPiece().colour != this.colour){
+            } else if (square.getPiece().colour != colour) {
                 possibleMoves.add(square);
                 break;
             } else {
@@ -52,11 +54,11 @@ public class Rook extends Piece {
             }
 
         }
-        for(int i = posX - 1, j = posY; i > -1; i--){ // Left
+        for (int i = posX - 1, j = posY; i > -1; i--) { // Left
             Square square = super.getSquare().getBoard().getSquares()[i][j];
-            if(square.getPiece() == null){
+            if (square.getPiece() == null) {
                 possibleMoves.add(square);
-            } else if (square.getPiece().colour != this.colour){
+            } else if (square.getPiece().colour != colour) {
                 possibleMoves.add(square);
                 break;
             } else {

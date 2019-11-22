@@ -8,29 +8,20 @@ import java.util.List;
 public class Bishop extends Piece {
     public Bishop(boolean colour, int x, int y) {
         super(colour, x, y);
+        this.value = 32;
     }
-    public Bishop(Piece piece){
+
+    public Bishop(Piece piece) {
         super(piece);
     }
-    public List<Square> possibleMoves(){
+
+    public List<Square> possibleMoves() {
         List<Square> possibleMoves = new ArrayList<>();
-        for(int i = posX + 1, j = posY + 1; i < 8 && j < 8; i++, j++){ //Down and Right Moves
-                Square square = super.getSquare().getBoard().getSquares()[i][j];
-                if(square.getPiece() == null){
-                    possibleMoves.add(square);
-                } else if (square.getPiece().colour != this.colour){
-                    possibleMoves.add(square);
-                    break;
-                } else {
-                    break;
-                }
-
-            }
-        for(int i = posX - 1, j = posY + 1; i > -1 && j < 8; i--, j++){ // Down and Left Moves
+        for (int i = posX + 1, j = posY + 1; i < 8 && j < 8; i++, j++) { //Down and Right Move
             Square square = super.getSquare().getBoard().getSquares()[i][j];
-            if(square.getPiece() == null){
+            if (square.getPiece() == null) {
                 possibleMoves.add(square);
-            } else if (square.getPiece().colour != this.colour){
+            } else if (square.getPiece().colour != this.colour) {
                 possibleMoves.add(square);
                 break;
             } else {
@@ -38,11 +29,11 @@ public class Bishop extends Piece {
             }
 
         }
-        for(int i = posX + 1, j = posY - 1; i < 8 && j > - 1; i++, j--){ // Up and Right Moves
+        for (int i = posX - 1, j = posY + 1; i > -1 && j < 8; i--, j++) { // Down and Left Move
             Square square = super.getSquare().getBoard().getSquares()[i][j];
-            if(square.getPiece() == null){
+            if (square.getPiece() == null) {
                 possibleMoves.add(square);
-            } else if (square.getPiece().colour != this.colour){
+            } else if (square.getPiece().colour != this.colour) {
                 possibleMoves.add(square);
                 break;
             } else {
@@ -50,11 +41,23 @@ public class Bishop extends Piece {
             }
 
         }
-        for(int i = posX - 1, j = posY - 1; i > -1 && j > -1; i--, j--){ // Up and Left Moves
+        for (int i = posX + 1, j = posY - 1; i < 8 && j > -1; i++, j--) { // Up and Right Move
             Square square = super.getSquare().getBoard().getSquares()[i][j];
-            if(square.getPiece() == null){
+            if (square.getPiece() == null) {
                 possibleMoves.add(square);
-            } else if (square.getPiece().colour != this.colour){
+            } else if (square.getPiece().colour != this.colour) {
+                possibleMoves.add(square);
+                break;
+            } else {
+                break;
+            }
+
+        }
+        for (int i = posX - 1, j = posY - 1; i > -1 && j > -1; i--, j--) { // Up and Left Move
+            Square square = super.getSquare().getBoard().getSquares()[i][j];
+            if (square.getPiece() == null) {
+                possibleMoves.add(square);
+            } else if (square.getPiece().colour != this.colour) {
                 possibleMoves.add(square);
                 break;
             } else {
@@ -63,7 +66,7 @@ public class Bishop extends Piece {
 
         }
         return possibleMoves;
-        }
+    }
 
 
     public String toString() {

@@ -9,6 +9,7 @@ public class Pawn extends Piece {
 
     public Pawn(Boolean colour, int x, int y) {
         super(colour, x, y);
+        this.value = 10;
     }
 
     public Pawn(Piece piece) {
@@ -22,30 +23,32 @@ public class Pawn extends Piece {
         if (colour) {
             i = -i;
         }
-        if (!this.hasMoved) {
+        if (!this.hasMoved && super.getSquare().getBoard().getSquares()[posX][posY + i].getPiece() == null) {
             squares.add(super.getSquare().getBoard().getSquares()[posX][posY + 2 * i]);
         }
         if (posY + i < 8 && posY + i > -1) {
             squares.add(super.getSquare().getBoard().getSquares()[posX][posY + i]);
         }
-        if (super.getSquare().getBoard().en_passant[1] != null && super.getSquare().getBoard().en_passant[1] == super.getSquare().y) {
-            if (super.getSquare().getBoard().en_passant[0] == super.getSquare().x - 1 && this.colour != super.getSquare().getBoard().getSquares()[super.getSquare().getBoard().en_passant[0]][super.getSquare().y].getPiece().colour) {
-                if (super.getSquare().getBoard().getSquares()[super.getSquare().x - 1][posY + i].getPiece() == null) {
-                    possibleMoves.add(super.getSquare().getBoard().getSquares()[posX - 1][posY + i]);
+        if (super.getSquare().getBoard().en_passant[0] != null && super.getSquare().getBoard().en_passant[0] != null) {
+            if (super.getSquare().getBoard().en_passant[1] == super.getSquare().y) {
+                if (super.getSquare().getBoard().en_passant[0] == super.getSquare().x - 1 && this.colour != super.getSquare().getBoard().getSquares()[super.getSquare().getBoard().en_passant[0]][super.getSquare().y].getPiece().colour) {
+                    if (super.getSquare().getBoard().getSquares()[super.getSquare().x - 1][posY + i].getPiece() == null) {
+                        possibleMoves.add(super.getSquare().getBoard().getSquares()[posX - 1][posY + i]);
+                    }
                 }
-            }
-            if (super.getSquare().getBoard().en_passant[0] == super.getSquare().x + 1 && this.colour != super.getSquare().getBoard().getSquares()[super.getSquare().getBoard().en_passant[0]][super.getSquare().y].getPiece().colour) {
-                if (super.getSquare().getBoard().getSquares()[super.getSquare().x + 1][posY + i].getPiece() == null) {
-                    possibleMoves.add(super.getSquare().getBoard().getSquares()[posX + 1][posY + i]);
+                if (super.getSquare().getBoard().en_passant[0] == super.getSquare().x + 1 && this.colour != super.getSquare().getBoard().getSquares()[super.getSquare().getBoard().en_passant[0]][super.getSquare().y].getPiece().colour) {
+                    if (super.getSquare().getBoard().getSquares()[super.getSquare().x + 1][posY + i].getPiece() == null) {
+                        possibleMoves.add(super.getSquare().getBoard().getSquares()[posX + 1][posY + i]);
+                    }
                 }
             }
         }
-        if(posX - 1 > -1 && posY + i > -1 && posY + i < 8) {
+        if (posX - 1 > -1 && posY + i > -1 && posY + i < 8) { // left
             if (super.getSquare().getBoard().getSquares()[posX - 1][posY + i].getPiece() != null && super.getSquare().getBoard().getSquares()[posX - 1][posY + i].getPiece().colour != super.getSquare().getPiece().colour) { // can take left
                 possibleMoves.add(super.getSquare().getBoard().getSquares()[posX - 1][posY + i]);
             }
         }
-        if(posX + 1 < 8 && posY + i > -1 && posY + i < 8) {
+        if (posX + 1 < 8 && posY + i > -1 && posY + i < 8) { // right
             if (super.getSquare().getBoard().getSquares()[posX + 1][posY + i].getPiece() != null && super.getSquare().getBoard().getSquares()[posX + 1][posY + i].getPiece().colour != super.getSquare().getPiece().colour) { // can take right
                 possibleMoves.add(super.getSquare().getBoard().getSquares()[posX + 1][posY + i]);
             }

@@ -18,10 +18,10 @@ public class King extends Piece {
         List<Square> possibleMoves = new ArrayList<>();
         List<Square> squares = new ArrayList<>();
         if(!hasMoved){
-            if(super.getSquare().getBoard().getSquares()[posX + 1][posY].getPiece() == null && super.getSquare().getBoard().getSquares()[posX + 3][posY].getPiece() instanceof Rook && !super.getSquare().getBoard().getSquares()[posX + 3][posY].getPiece().hasMoved) {
+            if(super.getSquare().getBoard().getSquares()[posX + 1][posY].getPiece() == null && super.getSquare().getBoard().getSquares()[posX + 3][posY].getPiece() instanceof Rook && !super.getSquare().getBoard().getSquares()[posX + 3][posY].getPiece().hasMoved && !super.getSquare().getBoard().chessGame.getCheck()) {
                 squares.add(super.getSquare().getBoard().getSquares()[posX + 2][posY]);
             }
-            if(super.getSquare().getBoard().getSquares()[posX - 1][posY].getPiece() == null && super.getSquare().getBoard().getSquares()[posX - 3][posY].getPiece() == null &&super.getSquare().getBoard().getSquares()[posX - 4][posY].getPiece() instanceof Rook && !super.getSquare().getBoard().getSquares()[posX - 4][posY].getPiece().hasMoved) {
+            if(super.getSquare().getBoard().getSquares()[posX - 1][posY].getPiece() == null && super.getSquare().getBoard().getSquares()[posX - 3][posY].getPiece() == null &&super.getSquare().getBoard().getSquares()[posX - 4][posY].getPiece() instanceof Rook && !super.getSquare().getBoard().getSquares()[posX - 4][posY].getPiece().hasMoved && !super.getSquare().getBoard().chessGame.getCheck()) {
                 squares.add(super.getSquare().getBoard().getSquares()[posX - 2][posY]);
             }
         }

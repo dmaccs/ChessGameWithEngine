@@ -8,27 +8,25 @@ public abstract class Piece {
     public Boolean colour; // White is True Black is False
     public int posX;
     public int posY;
-    protected int posInitX;
-    protected int posInitY;
     public Boolean hasMoved;
     private Square square;
     protected List<Square> moves;
+    protected int value;
 
     public Piece(Boolean colour, int x, int y) {
         this.colour = colour;
         this.posX = x;
         this.posY = y;
-        this.posInitX = x;
-        this.posInitY = y;
         this.hasMoved = false;
     }
     public Piece(Piece piece){
         this.colour = piece.colour;
         this.posX = piece.posX;
         this.posY = piece.posY;
-        this.posInitX = piece.posInitX;
-        this.posInitY = piece.posInitY;
         this.hasMoved = piece.hasMoved;
+        this.value = piece.value;
+        this.moves = piece.moves;
+        this.square = piece.square;
     }
 
     public void updatePiece(int newX, int newY) {
@@ -48,9 +46,15 @@ public abstract class Piece {
     public List<Square> moves(){
         return this.moves;
     }
+
     public abstract List<Square> possibleMoves();
+
     public void setMoves(List<Square> moves){
         this.moves = moves;
+    }
+
+    public int getValue(){
+        return this.value;
     }
 
     @Override
