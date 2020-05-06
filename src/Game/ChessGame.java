@@ -31,19 +31,41 @@ public class ChessGame {
     }
 
     public void makeMove(int curI, int finI) {
+        boolean canEnpassant;
         Piece curPiece = board.getSquares().get(curI).getPiece();
         if (curPiece != null && curPiece.colour == turn) {
             if (curPiece.possibleMoves(board, board.getSquares().get(curI)).contains(board.getSquares().get(finI))) {
+                canEnpassant = (board.getSquares().get(finI).getPiece() == null);
                 Board newBoard = new Board(board, curI, finI);
                 newBoard = kingMoves(curI, finI, curPiece, newBoard);
-                newBoard = pawnMoves(curI, finI, curPiece, newBoard);
+                newBoard = pawnMoves(curI, finI, curPiece, newBoard, canEnpassant);
                 if (legalMove(newBoard)) {
                     this.board = newBoard;
                     this.turn = !turn;
+                    board.boardTurn = !board.boardTurn;
                     System.out.println("chessGame.makeMove(" + curI + ", " + finI + ");");
                 }
             }
         }
+    }
+
+    public Board engineMove(int curI, int finI, Board board) {
+        boolean canEnpassant;
+        Board newBoard = board;
+        Piece curPiece = board.getSquares().get(curI).getPiece();
+        if (curPiece != null && curPiece.colour == board.boardTurn) {
+            if (curPiece.possibleMoves(board, board.getSquares().get(curI)).contains(board.getSquares().get(finI))) {
+                canEnpassant = (board.getSquares().get(finI).getPiece() == null);
+                newBoard = new Board(board, curI, finI);
+                newBoard = kingMoves(curI, finI, curPiece, newBoard);
+                newBoard = pawnMoves(curI, finI, curPiece, newBoard, canEnpassant);
+                if (legalMove(newBoard)) {
+                    newBoard.boardTurn = ! newBoard.boardTurn;
+                    System.out.println("Testing chessGame.makeMove(" + curI + ", " + finI + ");");
+                }
+            }
+        }
+        return newBoard;
     }
 
     private Board kingMoves(int curI, int finI, Piece curPiece, Board newBoard) {
@@ -58,10 +80,10 @@ public class ChessGame {
         return newBoard;
     }
 
-    private Board pawnMoves(int curI, int finI, Piece curPiece, Board newBoard) {
+    private Board pawnMoves(int curI, int finI, Piece curPiece, Board newBoard, boolean enpassant) {
         if (curPiece instanceof Pawn) {
             if (Math.abs(curI - finI) == 7 || Math.abs(curI - finI) == 9) {// en passant
-                if (board.getSquares().get(finI).getPiece() == null) {
+                if (enpassant) {
                     if ((curI - finI) == -9 || (curI - finI) == 7) {
                         newBoard = new Board(newBoard, curI + 1, null);
                     } else if ((curI - finI) == 9 || (curI - finI) == -7) {
@@ -72,16 +94,16 @@ public class ChessGame {
             if (finI < 8 || finI > 55) {//promotion
                 switch (board.promotion) {
                     case Queen:
-                        newBoard = new Board(newBoard, finI, new Queen(turn, finI));
+                        newBoard = new Board(newBoard, finI, new Queen(board.boardTurn, finI));
                         break;
                     case Rook:
-                        newBoard = new Board(newBoard, finI, new Rook(turn, finI));
+                        newBoard = new Board(newBoard, finI, new Rook(board.boardTurn, finI));
                         break;
                     case Bishop:
-                        newBoard = new Board(newBoard, finI, new Bishop(turn, finI));
+                        newBoard = new Board(newBoard, finI, new Bishop(board.boardTurn, finI));
                         break;
                     case Knight:
-                        newBoard = new Board(newBoard, finI, new Knight(turn, finI));
+                        newBoard = new Board(newBoard, finI, new Knight(board.boardTurn, finI));
                         break;
                 }
             }
@@ -98,7 +120,7 @@ public class ChessGame {
         for (int i = 0; i < 64; i++) {
             Piece curPiece = newBoard.getSquares().get(i).getPiece();
             if (curPiece != null) {
-                if (curPiece.colour != turn) {
+                if (curPiece.colour != newBoard.boardTurn) {
                     if (curPiece.possibleMoves(newBoard, newBoard.getSquares().get(i)).contains(newBoard.getSquares().get(kinPos))) {
                         return false;
                     }

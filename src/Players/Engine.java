@@ -16,10 +16,10 @@ public class Engine extends Player {
         this.depth = depth;
     }
 
-    public int positionalValue() {
+    public int positionalValue(Board board) {
         int positionalValue = 0;
         for (int i = 0; i < 64; i++) {
-            Piece piece = chessGame.getBoard().getSquares().get(i).getPiece();
+            Piece piece = board.getSquares().get(i).getPiece();
             if (piece != null) {
                 if (piece.colour) {
                     positionalValue += piece.getValue();
@@ -32,28 +32,28 @@ public class Engine extends Player {
     }
 
 
-    public int mobilityValue() {
+    public int mobilityValue(Board board) {
         int whiteMoves = 0;
         int blackMoves = 0;
         for (int i = 0; i < 64; i++) {
-            Piece piece = chessGame.getBoard().getSquares().get(i).getPiece();
+            Piece piece = board.getSquares().get(i).getPiece();
             if (piece != null) {
                 if (piece.colour) {
-                    whiteMoves += piece.possibleMoves(chessGame.getBoard(), chessGame.getBoard().getSquares().get(i)).size();
+                    whiteMoves += piece.possibleMoves(board, board.getSquares().get(i)).size();
                 } else {
-                    blackMoves += piece.possibleMoves(chessGame.getBoard(), chessGame.getBoard().getSquares().get(i)).size();
+                    blackMoves += piece.possibleMoves(board, board.getSquares().get(i)).size();
                 }
             }
         }
         if (whiteMoves == 0) {
-            if (chessGame.legalMove(chessGame.getBoard())) {
+            if (chessGame.legalMove(board)) {
                 return -2000000;
             } else {
                 return -1000;
             }
         }
         if (blackMoves == 0) {
-            if (chessGame.legalMove(chessGame.getBoard())) {
+            if (chessGame.legalMove(board)) {
                 return 2000000;
             } else {
                 return 1000;
@@ -66,15 +66,15 @@ public class Engine extends Player {
         int max = -3000000;
         int min = +3000000;
         if (depth == 0) {
-            return positionalValue() + mobilityValue();
+            return positionalValue(board) + mobilityValue(board);
         } else {
-            if (chessGame.getTurn()) {
+            if (board.getTurn()) {
                 for (int i = 0; i < 64; i++) {
                     Piece piece = board.getSquares().get(i).getPiece();
                     if (piece != null) {
                         if (piece.colour) {
                             for (Square square : piece.possibleMoves(board, board.getSquares().get(i))) {
-                                Board newBoard = new Board(board, i, square.x + square.y * 8);
+                                Board newBoard = chessGame.engineMove(i,square.x + square.y * 8, board);
                                 if (chessGame.legalMove(newBoard)) {
                                     max = Math.max(max, totalValue(depth - 1, alpha, beta, newBoard));
                                     alpha = Math.max(alpha, max);
@@ -92,7 +92,7 @@ public class Engine extends Player {
                     if (piece != null) {
                         if (!piece.colour) {
                             for (Square square : piece.possibleMoves(board, board.getSquares().get(i))) {
-                                Board newBoard = new Board(board, i, square.x + square.y * 8);
+                                Board newBoard = chessGame.engineMove(i,square.x + square.y * 8, board);
                                 if (chessGame.legalMove(newBoard)) {
                                     min = Math.min(min, totalValue(depth - 1, alpha, beta, newBoard));
                                     beta = Math.min(beta, min);
@@ -106,7 +106,7 @@ public class Engine extends Player {
                 }
             }
         }
-        if (chessGame.getTurn()) {
+        if (board.getTurn()) {
             return max;
         } else {
             return min;
@@ -122,13 +122,13 @@ public class Engine extends Player {
         int[] currentBest = new int[2];
         Piece kingRook = null;
         Piece promotionPiece = null;
-        if (chessGame.getTurn()) {
+        if (board.getTurn()) {
             for (int i = 0; i < 64; i++) {
                 Piece piece = board.getSquares().get(i).getPiece();
                 if (piece != null) {
-                    if (piece.colour == chessGame.getTurn()) {
-                        for (Square square : piece.possibleMoves(chessGame.getBoard(), chessGame.getBoard().getSquares().get(i))) {
-                            Board newBoard = new Board(board, i, square.x + square.y * 8);
+                    if (piece.colour == board.getTurn()) {
+                        for (Square square : piece.possibleMoves(board, board.getSquares().get(i))) {
+                            Board newBoard = chessGame.engineMove(i,square.x + square.y * 8, board);
                             if (chessGame.legalMove(newBoard)) {
                                 int test = totalValue(depth - 1, -2147483648, 2147483647, newBoard);
                                 if (test > max) {
@@ -147,9 +147,9 @@ public class Engine extends Player {
             for (int i = 0; i < 64; i++) {
                 Piece piece = board.getSquares().get(i).getPiece();
                 if (piece != null) {
-                    if (piece.colour == chessGame.getTurn()) {
-                        for (Square square : piece.possibleMoves(chessGame.getBoard(), chessGame.getBoard().getSquares().get(i))) {
-                            Board newBoard = new Board(board, i, square.x + square.y * 8);
+                    if (piece.colour == board.getTurn()) {
+                        for (Square square : piece.possibleMoves(board, board.getSquares().get(i))) {
+                            Board newBoard = chessGame.engineMove(i,square.x + square.y * 8, board);
                             if (chessGame.legalMove(newBoard)) {
                                 int test = totalValue(depth - 1, -2147483648, 2147483647, newBoard);
                                 if (test < min) {

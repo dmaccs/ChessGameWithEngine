@@ -23,5 +23,8 @@ public class Game {
         window.add(ui);//
         window.setSize(496, 575);
         window.setVisible(true);
+        chessGame.makeMove(51, 35);
+        int[] nextMove = chessGame.blackPlayer.bestMove(chessGame);
+        chessGame.makeMove(nextMove[0], nextMove[1]);
     }
 }

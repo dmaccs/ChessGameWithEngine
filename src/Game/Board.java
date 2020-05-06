@@ -11,8 +11,10 @@ public final class Board {
     private int check; //0 no checks, 1 white in check, 2 black in check
     public Promotions promotion = Promotions.Queen;
     public ChessGame chessGame;
+    public boolean boardTurn;
 
     public Board() {
+        boardTurn = true;
         this.squares = new ArrayList<Square>();
         en_passant = null;
         for (int i = 0; i < 64; i++) {
@@ -66,6 +68,7 @@ public final class Board {
         } else {
             this.en_passant = null;
         }
+        this.boardTurn = board.boardTurn;
     }
 
     public Board(Board board, int piecePos, Piece newPiece){
@@ -137,6 +140,10 @@ public final class Board {
 
     public ArrayList<Square> getSquares() {
         return this.squares;
+    }
+
+    public boolean getTurn(){
+        return boardTurn;
     }
 
     @Override
