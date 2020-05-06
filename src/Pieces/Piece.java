@@ -1,60 +1,45 @@
 package Pieces;
 
+import Game.Board;
+import Game.PieceType;
 import Game.Square;
 
 import java.util.List;
 
 public abstract class Piece {
     public Boolean colour; // White is True Black is False
-    public int posX;
-    public int posY;
     public Boolean hasMoved;
-    private Square square;
-    protected List<Square> moves;
+    private Board board;
     protected int value;
+    protected PieceType type;
 
-    public Piece(Boolean colour, int x, int y) {
+    public Piece(Boolean colour, int i) {
         this.colour = colour;
-        this.posX = x;
-        this.posY = y;
         this.hasMoved = false;
     }
     public Piece(Piece piece){
         this.colour = piece.colour;
-        this.posX = piece.posX;
-        this.posY = piece.posY;
-        this.hasMoved = piece.hasMoved;
-        this.value = piece.value;
-        this.moves = piece.moves;
-        this.square = piece.square;
-    }
-
-    public void updatePiece(int newX, int newY) {
-        this.posX = newX;
-        this.posY = newY;
         this.hasMoved = true;
+        this.value = piece.value;
+        this.type = piece.type;
     }
 
-    public Square getSquare() {
-        return square;
+    public void setBoard (Board board){
+        this.board = board;
     }
 
-    public void setSquare(Square square){
-        this.square = square;
+    public Board getBoard(){
+        return this.board;
     }
 
-    public List<Square> moves(){
-        return this.moves;
-    }
-
-    public abstract List<Square> possibleMoves();
-
-    public void setMoves(List<Square> moves){
-        this.moves = moves;
-    }
+    public abstract List<Square> possibleMoves(Board board, Square square);
 
     public int getValue(){
         return this.value;
+    }
+
+    public PieceType getType(){
+        return this.type;
     }
 
     @Override

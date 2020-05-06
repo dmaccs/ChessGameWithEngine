@@ -1,6 +1,7 @@
 package Game;
 
 import Pieces.*;
+import Players.Engine;
 import Players.Player;
 
 import java.util.List;
@@ -8,16 +9,16 @@ import java.util.List;
 public class ChessGame {
 
     private Board board;
-    private Player whitePlayer;
-    private Player blackPlayer;
+    public final Player whitePlayer;
+    public final Player blackPlayer;
     private Boolean checkMate;
-    private Boolean turn = true;
-    private Boolean check = false;
+    private Boolean turn;
+    private Boolean check;
 
     // add timer functionality
-    public ChessGame(Board board, Player player1, Player player2){
-        this.board = board;
-        if(player1.getColour()){
+    public ChessGame(Player player1, Player player2) {
+        this.board = new Board();
+        if (player1.getColour()) {
             whitePlayer = player1;
             blackPlayer = player2;
         } else {
@@ -25,296 +26,112 @@ public class ChessGame {
             blackPlayer = player1;
         }
         this.checkMate = false;
+        this.turn = true;
+        this.check = false;
     }
 
-
-    public void makeMove(int curX, int curY, int finX, int finY) {
-        if(board.getSquares()[curX][curY].getPiece() != null && board.getSquares()[curX][curY].getPiece().colour == turn) {
-            if (!checkMate) {
-                if (curX == finX && curY == finY) {
-                    return;
+    public void makeMove(int curI, int finI) {
+        Piece curPiece = board.getSquares().get(curI).getPiece();
+        if (curPiece != null && curPiece.colour == turn) {
+            if (curPiece.possibleMoves(board, board.getSquares().get(curI)).contains(board.getSquares().get(finI))) {
+                Board newBoard = new Board(board, curI, finI);
+                newBoard = kingMoves(curI, finI, curPiece, newBoard);
+                newBoard = pawnMoves(curI, finI, curPiece, newBoard);
+                if (legalMove(newBoard)) {
+                    this.board = newBoard;
+                    this.turn = !turn;
+                    System.out.println("chessGame.makeMove(" + curI + ", " + finI + ");");
                 }
-                updatePieces();
-                if(inCheck(turn)){
-                    check = true;
-                } else {
-                    check = false;
-                }
-                if (validMove(curX, curY, finX, finY)) {
-                    System.out.println("chessGame.makeMove(" + curX + "," + curY + "," + finX + "," + finY + ");");
-                }
-                if (inCheck(turn)) {
-
-                    checkMate();
-                }
-            }
-            if (checkMate) {
-                System.out.println("Checkmate!");
             }
         }
-        board.promotion = Promotions.Queen;
     }
 
-    public void doMove(int curX, int curY, int finX, int finY) {
-        if (board.getSquares()[curX][curY].getPiece() instanceof Pawn && board.en_passant[0] != null) {
-            if (board.en_passant[0] == finX && Math.abs(curX - board.en_passant[0]) == 1 && board.en_passant[1] == curY) {
-                board.getSquares()[board.en_passant[0]][board.en_passant[1]].setPiece(null);
-            }
-        }
-        if (board.getSquares()[curX][curY].getPiece() instanceof Pawn && Math.abs(curY - finY) == 2) {
-            board.en_passant[0] = finX;
-            board.en_passant[1] = finY;
-        } else {
-            board.en_passant[0] = null;
-            board.en_passant[1] = null;
-        }
-        if (board.getSquares()[curX][curY].getPiece() instanceof King && Math.abs(curX - finX) == 2) { //castling
-            if (curX - finX > 0) {
-                board.getSquares()[3][curY].setPiece(board.getSquares()[0][curY].getPiece());
-                board.getSquares()[3][curY].getPiece().setSquare(board.getSquares()[3][curY]);
-                board.getSquares()[3][curY].getPiece().updatePiece(3, curY);
-                board.getSquares()[0][curY].setPiece(null);
+    private Board kingMoves(int curI, int finI, Piece curPiece, Board newBoard) {
+        if (curPiece instanceof King && Math.abs(curI - finI) == 2) { // castling
+            System.out.println("huh");//castling
+            if (curI - finI > 0) {
+                newBoard = new Board(newBoard, curI - 4, finI + 1); // left rooks
             } else {
-                board.getSquares()[5][curY].setPiece(board.getSquares()[7][curY].getPiece());
-                board.getSquares()[5][curY].getPiece().setSquare(board.getSquares()[5][curY]);
-                board.getSquares()[5][curY].getPiece().updatePiece(5, curY);
-                board.getSquares()[7][curY].setPiece(null);
+                newBoard = new Board(newBoard, curI + 3, finI - 1); // right rooks
             }
         }
-        if (board.getSquares()[curX][curY].getPiece() instanceof Pawn && (finY == 7 || finY == 0)) { //promotion
-            boolean colour = board.getSquares()[curX][curY].getPiece().colour;
-            switch (board.promotion) {
-                case Queen:
-                    board.getSquares()[curX][curY].setPiece(new Queen(colour, curX, curY));
-                    break;
-                case Rook:
-                    board.getSquares()[curX][curY].setPiece(new Rook(colour, curX, curY));
-                    break;
-                case Bishop:
-                    board.getSquares()[curX][curY].setPiece(new Bishop(colour, curX, curY));
-                    break;
-                case Knight:
-                    board.getSquares()[curX][curY].setPiece(new Knight(colour, curX, curY));
-                    break;
-            }
-        }
-        board.getSquares()[finX][finY].setPiece(board.getSquares()[curX][curY].getPiece()); // update board
-        board.getSquares()[finX][finY].getPiece().setSquare(board.getSquares()[finX][finY]);
-        board.getSquares()[finX][finY].getPiece().updatePiece(finX, finY);
-        board.getSquares()[curX][curY].setPiece(null);
-        turn = !turn;
-
+        return newBoard;
     }
 
-    public boolean validMove(int curX, int curY, int finX, int finY) {
-        updatePieces();
-        Piece piece = board.getSquares()[curX][curY].getPiece();
-        boolean result = false;
-        Piece kingRook = null;
-        Piece promotionPiece = null;
-        if (piece != null) {
-            if (piece.moves().contains(board.getSquares()[finX][finY])) {
-                result = true;
-            }
-            if (result) {
-                Piece finalPiece = createPiece(board.getSquares()[finX][finY].getPiece());
-                Integer[] enPassant = new Integer[2];
-                Integer x = board.en_passant[0];
-                Integer y = board.en_passant[1];
-                enPassant[0] = x;
-                enPassant[1] = y;
-                Piece enPassantPiece = null;
-                if(enPassant[0] != null){
-                    enPassantPiece = createPiece(board.getSquares()[enPassant[0]][enPassant[1]].getPiece());
-                }
-                boolean hasMoved = piece.hasMoved;
-                if(piece instanceof King && Math.abs(curX - finX) == 2){
-                    if(finX < 4) {
-                        kingRook = createPiece(board.getSquares()[0][finY].getPiece());
-                    } else {
-                        kingRook = createPiece(board.getSquares()[7][finY].getPiece());
+    private Board pawnMoves(int curI, int finI, Piece curPiece, Board newBoard) {
+        if (curPiece instanceof Pawn) {
+            if (Math.abs(curI - finI) == 7 || Math.abs(curI - finI) == 9) {// en passant
+                if (board.getSquares().get(finI).getPiece() == null) {
+                    if ((curI - finI) == -9 || (curI - finI) == 7) {
+                        newBoard = new Board(newBoard, curI + 1, null);
+                    } else if ((curI - finI) == 9 || (curI - finI) == -7) {
+                        newBoard = new Board(newBoard, curI - 1, null);
                     }
                 }
-                if(piece instanceof Pawn && (curY + finY == 13 || curY + finY == 1)){
-                    promotionPiece = createPiece(piece);
-                }
-                doMove(curX, curY, finX, finY);
-                if (inCheck(board.getSquares()[finX][finY].getPiece().colour)) {
-                    result = false;
-                    revertMove(curX, curY, finX, finY, finalPiece, enPassant, enPassantPiece, kingRook, promotionPiece);
-                    board.getSquares()[curX][curY].getPiece().hasMoved = hasMoved;
-                }
             }
-        }
-        return result;
-    }
-
-    public void revertMove(int curX, int curY, int finX, int finY, Piece finalPiece, Integer[] enPassant, Piece enPassantPiece, Piece kingRook, Piece promotionPiece) {
-        board.getSquares()[curX][curY].setPiece(board.getSquares()[finX][finY].getPiece());
-        board.getSquares()[curX][curY].getPiece().setSquare(board.getSquares()[curX][curY]);
-        board.getSquares()[finX][finY].setPiece(finalPiece);
-        if (finalPiece != null) {
-            finalPiece.setSquare(board.getSquares()[finX][finY]);
-        }
-        board.getSquares()[curX][curY].getPiece().updatePiece(curX, curY);
-        turn = !turn;
-        board.en_passant = enPassant;
-        if(enPassantPiece != null){
-            board.getSquares()[enPassant[0]][enPassant[1]].setPiece(enPassantPiece);
-        }
-       if(kingRook != null){
-           if(finX < 4){
-               board.getSquares()[0][finY].setPiece(kingRook);
-               board.getSquares()[3][finY].setPiece(null);
-           } else {
-               board.getSquares()[7][finY].setPiece(kingRook);
-               board.getSquares()[5][finY].setPiece(null);
-           }
-       }
-       if(promotionPiece != null){
-           board.getSquares()[curX][curY].setPiece(promotionPiece);
-       }
-    }
-
-    public Piece createPiece(Piece piece) {
-        if (piece != null) {
-            switch (piece.toString()) {
-                case "R":
-                    return new Rook(piece);
-                case "r":
-                    return new Rook(piece);
-                case "N":
-                    return new Knight(piece);
-                case "n":
-                    return new Knight(piece);
-                case "B":
-                    return new Bishop(piece);
-                case "b":
-                    return new Bishop(piece);
-                case "Q":
-                    return new Queen(piece);
-                case "q":
-                    return new Queen(piece);
-                case "K":
-                    return new King(piece);
-                case "k":
-                    return new King(piece);
-                case "P":
-                    return new Pawn(piece);
-                case "p":
-                    return new Pawn(piece);
-            }
-        }
-        return null;
-    }
-
-    public Boolean validMoveCheckBoard(int curX, int curY, int finX, int finY) {
-        updatePieces();
-        Piece piece = board.getSquares()[curX][curY].getPiece();
-        if (piece != null) {
-            if (piece.moves().contains(board.getSquares()[finX][finY])) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    public boolean inCheck(boolean turn) {
-        int kingX = 10;
-        int kingY = 10;
-        boolean result = false;
-        for (int i = 0; i < 8; i++) {
-            for (int j = 0; j < 8; j++) {
-                if (board.getSquares()[i][j].getPiece() instanceof King && board.getSquares()[i][j].getPiece().colour == turn) {
-                    kingX = i;
-                    kingY = j;
-                    i = j = 8;
-                    break;
+            if (finI < 8 || finI > 55) {//promotion
+                switch (board.promotion) {
+                    case Queen:
+                        newBoard = new Board(newBoard, finI, new Queen(turn, finI));
+                        break;
+                    case Rook:
+                        newBoard = new Board(newBoard, finI, new Rook(turn, finI));
+                        break;
+                    case Bishop:
+                        newBoard = new Board(newBoard, finI, new Bishop(turn, finI));
+                        break;
+                    case Knight:
+                        newBoard = new Board(newBoard, finI, new Knight(turn, finI));
+                        break;
                 }
             }
         }
-        if (kingX == 10 || kingY == 10) {
-            throw new IndexOutOfBoundsException();
-        }
-        for (int i = 0; i < 8; i++) {
-            for (int j = 0; j < 8; j++) {
-                if (board.getSquares()[i][j].getPiece() != null) {
-                    result = result || validMoveCheckBoard(i, j, kingX, kingY);
-                }
-            }
-        }
-        return result;
+        return newBoard;
     }
 
-    public void updatePieces() {
-        for (int i = 0; i < 8; i++) {
-            for (int j = 0; j < 8; j++) {
-                if (board.getSquares()[i][j].getPiece() != null) {
-                    board.getSquares()[i][j].getPiece().setMoves(board.getSquares()[i][j].getPiece().possibleMoves());
-                }
-            }
+    public boolean legalMove(Board newBoard) {
+        int kinPos = findKing(newBoard);
+        if (kinPos == 65) {
+            System.out.println("no king, something is broken in chessGame");
+            return false;
         }
-    }
-
-    public void checkMate() {
-        updatePieces();
-        Piece promotionPiece = null;
-        Piece kingRook = null;
-        for (int i = 0; i < 8; i++) {
-            for (int j = 0; j < 8; j++) {
-                if (board.getSquares()[i][j].getPiece() != null && board.getSquares()[i][j].getPiece().colour == turn) {
-                    List<Square> squares = board.getSquares()[i][j].getPiece().possibleMoves();
-                    for (Square square : squares) {
-                        kingRook = null;
-                        promotionPiece = null;
-                        Piece finalPiece = createPiece(board.getSquares()[square.x][square.y].getPiece());
-                        Integer[] enPassant = new Integer[2];
-                        Integer x = board.en_passant[0];
-                        Integer y = board.en_passant[1];
-                        enPassant[0] = x;
-                        enPassant[1] = y;
-                        Piece enPassantPiece = null;
-                        if(enPassant[0] != null){
-                            enPassantPiece = createPiece(board.getSquares()[enPassant[0]][enPassant[1]].getPiece());
-                        }
-                        if(board.getSquares()[i][j].getPiece() instanceof King && Math.abs(i - square.x) == 2){
-                            if(square.x < 4) {
-                                kingRook = createPiece(board.getSquares()[0][square.y].getPiece());
-                            } else {
-                                kingRook = createPiece(board.getSquares()[7][square.y].getPiece());
-                            }
-                        }
-                        if(board.getSquares()[i][j].getPiece() instanceof Pawn && (j + square.y == 13 || j + square.y == 1)){
-                            promotionPiece = createPiece(board.getSquares()[i][j].getPiece());
-                        }
-                        boolean hasMoved = board.getSquares()[i][j].getPiece().hasMoved;
-                        updatePieces();
-                        if (validMove(i, j, square.x, square.y)) {
-                            revertMove(i, j, square.x, square.y, finalPiece, enPassant, enPassantPiece, kingRook, promotionPiece);
-                            board.getSquares()[i][j].getPiece().hasMoved = hasMoved;
-                            return;
-                        }
+        for (int i = 0; i < 64; i++) {
+            Piece curPiece = newBoard.getSquares().get(i).getPiece();
+            if (curPiece != null) {
+                if (curPiece.colour != turn) {
+                    if (curPiece.possibleMoves(newBoard, newBoard.getSquares().get(i)).contains(newBoard.getSquares().get(kinPos))) {
+                        return false;
                     }
                 }
             }
         }
-        checkMate = true;
+        return true;
     }
 
-    public Player getBlackPlayer() {
-        return blackPlayer;
+    public int findKing(Board board) {
+        for (int i = 0; i < 64; i++) {
+            if (board.getSquares().get(i).getPiece() instanceof King && board.getSquares().get(i).getPiece().colour == turn) {
+                return i;
+            }
+        }
+        return 65;
     }
-    public Player getWhitePlayer() {
-        return whitePlayer;
-    }
-    public Board getBoard(){
+
+    public Board getBoard() {
         return this.board;
     }
 
     public Boolean getTurn() {
         return turn;
     }
-    public Boolean getCheck(){
+
+    public Boolean getCheck() {
         return check;
+    }
+    public Boolean isWhiteEngine(){
+        return (whitePlayer instanceof Engine);
+    }
+    public Boolean isBlackEngine(){
+        return (blackPlayer instanceof Engine);
     }
 }

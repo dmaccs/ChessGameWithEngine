@@ -2,9 +2,7 @@ package Game;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
-import java.awt.event.MouseMotionListener;
+import java.awt.event.*;
 
 public class UI extends JPanel implements MouseListener, MouseMotionListener {
     int firstX, firstY, finX, finY;
@@ -37,63 +35,61 @@ public class UI extends JPanel implements MouseListener, MouseMotionListener {
         this.addMouseListener(this);
         this.addMouseMotionListener(this);
         Image chessPieces = new ImageIcon("ChessPiecesArray.png").getImage();
-        for (int i = 0; i < 8; i++) {
-            for (int j = 0; j < 8; j++) {
-                int k = -1;
-                int l = -1;
-                if (chessGame.getBoard().getSquares()[i][j].getPiece() != null) {
-                    switch (chessGame.getBoard().getSquares()[i][j].getPiece().toString()) {
-                        case "R":
-                            l = 2;
-                            k = 1;
-                            break;
-                        case "r":
-                            l = 2;
-                            k = 0;
-                            break;
-                        case "N":
-                            l = 3;
-                            k = 1;
-                            break;
-                        case "n":
-                            l = 3;
-                            k = 0;
-                            break;
-                        case "B":
-                            l = 4;
-                            k = 1;
-                            break;
-                        case "b":
-                            l = 4;
-                            k = 0;
-                            break;
-                        case "Q":
-                            l = 0;
-                            k = 1;
-                            break;
-                        case "q":
-                            l = 0;
-                            k = 0;
-                            break;
-                        case "K":
-                            l = 1;
-                            k = 1;
-                            break;
-                        case "k":
-                            l = 1;
-                            k = 0;
-                            break;
-                        case "P":
-                            l = 5;
-                            k = 1;
-                            break;
-                        case "p":
-                            l = 5;
-                            k = 0;
-                            break;
-                    }
-                    graphics.drawImage(chessPieces, i * squareSize, j * squareSize, (i + 1) * squareSize, (j + 1) * squareSize, l * squareSize, k * squareSize, l * squareSize + 60, k * squareSize + 60, this);
+        for (int i = 0; i < 64; i++) {
+            int k = -1;
+            int l = -1;
+            if (chessGame.getBoard().getSquares().get(i).getPiece() != null) {
+                switch (chessGame.getBoard().getSquares().get(i).getPiece().toString()) {
+                    case "R":
+                        l = 2;
+                        k = 1;
+                        break;
+                    case "r":
+                        l = 2;
+                        k = 0;
+                        break;
+                    case "N":
+                        l = 3;
+                        k = 1;
+                        break;
+                    case "n":
+                        l = 3;
+                        k = 0;
+                        break;
+                    case "B":
+                        l = 4;
+                        k = 1;
+                        break;
+                    case "b":
+                        l = 4;
+                        k = 0;
+                        break;
+                    case "Q":
+                        l = 0;
+                        k = 1;
+                        break;
+                    case "q":
+                        l = 0;
+                        k = 0;
+                        break;
+                    case "K":
+                        l = 1;
+                        k = 1;
+                        break;
+                    case "k":
+                        l = 1;
+                        k = 0;
+                        break;
+                    case "P":
+                        l = 5;
+                        k = 1;
+                        break;
+                    case "p":
+                        l = 5;
+                        k = 0;
+                        break;
                 }
+                graphics.drawImage(chessPieces, i % 8 * squareSize, i / 8 * squareSize, (i % 8 + 1) * squareSize, (i / 8 + 1) * squareSize, l * squareSize, k * squareSize, l * squareSize + 60, k * squareSize + 60, this);
             }
         }
         graphics.drawImage(chessPieces, 120, 480, 180, 540, 0, 1 * squareSize, 1 * squareSize, 2 * squareSize, this);//queen
@@ -119,26 +115,40 @@ public class UI extends JPanel implements MouseListener, MouseMotionListener {
 
     @Override
     public void mouseReleased(MouseEvent e) {
-        if (e.getX() < 480 && e.getY() < 480) {
+       if(chessGame.isBlackEngine() && !chessGame.getTurn()){
+           int[] nextMove = chessGame.blackPlayer.bestMove(chessGame);
+           chessGame.makeMove(nextMove[0], nextMove[1]);
+           repaint();
+       } else if(chessGame.isWhiteEngine() && chessGame.getTurn()){
+           int[] nextMove = chessGame.blackPlayer.bestMove(chessGame);
+           chessGame.makeMove(nextMove[0], nextMove[1]);
+           repaint();
+       } else if (e.getX() < 480 && e.getY() < 480) {
             finX = e.getX();
             finY = e.getY();
-            if (chessGame.getBoard().getSquares()[firstX / 60][firstY / 60].getPiece() != null) {
-                chessGame.makeMove(firstX / 60, firstY / 60, finX / 60, finY / 60);
+            int curI = (firstX / 60) + (firstY / 60 * 8);
+            int finI = (finX / 60) + (finY / 60 * 8);
+            if (chessGame.getBoard().getSquares().get(curI).getPiece() != null) {
+                chessGame.makeMove(curI, finI);
                 repaint();
             }
         } else {
-            if (120 < e.getX() && e.getX() < 180 && e.getY() > 480 && e.getY() < 540 && 120 < firstX && firstX < 180 && firstY > 480 && firstY < 540) {
-                chessGame.getBoard().promotion = Promotions.Queen;
+            setPromotions(e);
+        }
+    }
+
+    public void setPromotions(MouseEvent e) {
+        if (120 < e.getX() && e.getX() < 180 && e.getY() > 480 && e.getY() < 540 && 120 < firstX && firstX < 180 && firstY > 480 && firstY < 540) {
+            chessGame.getBoard().promotion = Promotions.Queen;
+        } else {
+            if (180 < e.getX() && e.getX() < 240 && e.getY() > 480 && e.getY() < 540 && 180 < firstX && firstX < 240 && firstY > 480 && firstY < 540) {
+                chessGame.getBoard().promotion = Promotions.Knight;
             } else {
-                if (180 < e.getX() && e.getX() < 240 && e.getY() > 480 && e.getY() < 540 && 180 < firstX && firstX < 240 && firstY > 480 && firstY < 540) {
-                    chessGame.getBoard().promotion = Promotions.Knight;
+                if (240 < e.getX() && e.getX() < 300 && e.getY() > 480 && e.getY() < 540 && 240 < firstX && firstX < 300 && firstY > 480 && firstY < 540) {
+                    chessGame.getBoard().promotion = Promotions.Rook;
                 } else {
-                    if (240 < e.getX() && e.getX() < 300 && e.getY() > 480 && e.getY() < 540 && 240 < firstX && firstX < 300 && firstY > 480 && firstY < 540) {
-                        chessGame.getBoard().promotion = Promotions.Rook;
-                    } else {
-                        if (300 < e.getX() && e.getX() < 360 && e.getY() > 480 && e.getY() < 540 && 300 < firstX && firstX < 360 && firstY > 480 && firstY < 540) {
-                            chessGame.getBoard().promotion = Promotions.Bishop;
-                        }
+                    if (300 < e.getX() && e.getX() < 360 && e.getY() > 480 && e.getY() < 540 && 300 < firstX && firstX < 360 && firstY > 480 && firstY < 540) {
+                        chessGame.getBoard().promotion = Promotions.Bishop;
                     }
                 }
             }
@@ -162,21 +172,5 @@ public class UI extends JPanel implements MouseListener, MouseMotionListener {
 
     @Override
     public void mouseMoved(MouseEvent e) {
-        if (!chessGame.getTurn()) {
-            int[] bestMove = new int[4];
-            long startTime = System.currentTimeMillis();
-            bestMove = chessGame.getBlackPlayer().bestMove(chessGame);
-            long endTime = System.currentTimeMillis();
-            chessGame.makeMove(bestMove[0], bestMove[1], bestMove[2], bestMove[3]);
-            System.out.println("That move took " + (endTime - startTime)/1000 + " seconds");
-            repaint();
-        }
-//        } else {
-//            int[] bestMove = new int[4];
-//            bestMove = chessGame.getWhitePlayer().bestMove(chessGame);
-//            chessGame.makeMove(bestMove[0], bestMove[1], bestMove[2], bestMove[3]);
-//            repaint();
-//        }
-        repaint();
     }
 }

@@ -3,32 +3,28 @@ package Game;
 import Pieces.Piece;
 
 public class Square {
-    private Piece currentPiece;
-    private Board board;
-    public int x;
-    public int y;
+    private final Piece piece;
+    public final int x;
+    public final int y;
+    private final Board board;
 
-    Square() {
-        currentPiece = null;
-    }
-
-    public Square(Piece piece) {
-        this.currentPiece = piece;
-    }
-
-    public Square(Square square){
-        this.currentPiece = square.currentPiece;
-    }
-
-    public void setPiece(Piece piece) { this.currentPiece = piece; }
-
-    public Piece getPiece() { return this.currentPiece; }
-
-    public void setBoard(Board board){
+    public Square(int x, int y, Piece piece, Board board) {
+        this.piece = piece;
         this.board = board;
+        this.x = x;
+        this.y = y;
     }
 
-    public Board getBoard(){ return this.board; }
+    public Square(Square square, Piece newPiece, Board newBoard){
+        this.piece = newPiece;
+        this.board = newBoard;
+        this.x = square.x;
+        this.y = square.y;
+    }
+
+    public Piece getPiece() { return this.piece; }
+
+    public Board getBoard(){ return this.board;}
 
     @Override
     public String toString() {
