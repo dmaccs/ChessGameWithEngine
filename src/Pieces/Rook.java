@@ -11,7 +11,7 @@ public class Rook extends Piece {
 
     public Rook(boolean colour, int i) {
         super(colour, i);
-        this.value = 50;
+        this.value = 5;
         this.type = PieceType.Rook;
     }
 

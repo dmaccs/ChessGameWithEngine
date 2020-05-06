@@ -72,7 +72,6 @@ public final class Board {
     }
 
     public Board(Board board, int piecePos, Piece newPiece){
-        Piece selectedPiece = board.getSquares().get(piecePos).getPiece();
         this.squares = new ArrayList<Square>();
         this.en_passant = board.en_passant;
         for(int i = 0; i < 64; i++){
@@ -82,6 +81,7 @@ public final class Board {
                 squares.add(new Square(board.getSquares().get(i), board.getSquares().get(i).getPiece(), this));
             }
         }
+        this.boardTurn = board.boardTurn;
     }
 
     public void placeBlackPiece(int i) {
@@ -153,7 +153,7 @@ public final class Board {
                 if (squares.get(i).getPiece() == null) {
                     output.append("[" + squares.get(i) + "0]");
                 } else {
-                    output.append("[" + squares.get(i).getPiece().colour.toString().substring(0, 1) + squares.get(i).getPiece() + "]");
+                    output. append("[" + squares.get(i).getPiece().colour.toString().substring(0, 1) + squares.get(i).getPiece() + "]");
                 }
             }
             output.append("\r\n");

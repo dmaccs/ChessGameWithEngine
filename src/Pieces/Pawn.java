@@ -11,7 +11,7 @@ public class Pawn extends Piece {
 
     public Pawn(Boolean colour, int i) {
         super(colour, i);
-        this.value = 10;
+        this.value = 1;
         this.type = PieceType.Pawn;
     }
 

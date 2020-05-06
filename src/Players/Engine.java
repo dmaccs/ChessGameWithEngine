@@ -3,8 +3,6 @@ package Players;
 import Game.Board;
 import Game.ChessGame;
 import Game.Square;
-import Pieces.King;
-import Pieces.Pawn;
 import Pieces.Piece;
 
 public class Engine extends Player {
@@ -16,7 +14,7 @@ public class Engine extends Player {
         this.depth = depth;
     }
 
-    public int positionalValue(Board board) {
+    public double positionalValue(Board board) {
         int positionalValue = 0;
         for (int i = 0; i < 64; i++) {
             Piece piece = board.getSquares().get(i).getPiece();
@@ -32,9 +30,9 @@ public class Engine extends Player {
     }
 
 
-    public int mobilityValue(Board board) {
-        int whiteMoves = 0;
-        int blackMoves = 0;
+    public double mobilityValue(Board board) {
+        double whiteMoves = 0;
+        double blackMoves = 0;
         for (int i = 0; i < 64; i++) {
             Piece piece = board.getSquares().get(i).getPiece();
             if (piece != null) {
@@ -47,24 +45,24 @@ public class Engine extends Player {
         }
         if (whiteMoves == 0) {
             if (chessGame.legalMove(board)) {
-                return -2000000;
+                return -2147483647;
             } else {
-                return -1000;
+                return 0;
             }
         }
         if (blackMoves == 0) {
             if (chessGame.legalMove(board)) {
-                return 2000000;
+                return 2147483647;
             } else {
-                return 1000;
+                return 0;
             }
         }
         return whiteMoves - blackMoves;
     }
 
-    public int totalValue(int depth, int alpha, int beta, Board board) {
-        int max = -3000000;
-        int min = +3000000;
+    public double totalValue(int depth, double alpha, double beta, Board board) {
+        double max = -2147483647;
+        double min = +2147483647;
         if (depth == 0) {
             return positionalValue(board) + mobilityValue(board);
         } else {
@@ -116,12 +114,9 @@ public class Engine extends Player {
     @Override
     public int[] bestMove(ChessGame chessGame) {
         Board board = chessGame.getBoard();
-        int max = -30000000;
-        int min = 3000000;
-        int inX, inY, finX, finY;
+        double max = -2147483647;
+        double min = 2147483647;
         int[] currentBest = new int[2];
-        Piece kingRook = null;
-        Piece promotionPiece = null;
         if (board.getTurn()) {
             for (int i = 0; i < 64; i++) {
                 Piece piece = board.getSquares().get(i).getPiece();
@@ -130,13 +125,11 @@ public class Engine extends Player {
                         for (Square square : piece.possibleMoves(board, board.getSquares().get(i))) {
                             Board newBoard = chessGame.engineMove(i,square.x + square.y * 8, board);
                             if (chessGame.legalMove(newBoard)) {
-                                int test = totalValue(depth - 1, -2147483648, 2147483647, newBoard);
+                                double test = totalValue(depth - 1, -2147483648, 2147483647, newBoard);
                                 if (test > max) {
                                     max = test;
                                     currentBest[0] = i;
                                     currentBest[1] = square.x + square.y * 8;
-                                    //System.out.println(max);
-                                    //System.out.println(currentBest[0] + "," + currentBest[1] + "," + currentBest[2] + "," + currentBest[3]);
                                 }
                             }
                         }
@@ -151,13 +144,11 @@ public class Engine extends Player {
                         for (Square square : piece.possibleMoves(board, board.getSquares().get(i))) {
                             Board newBoard = chessGame.engineMove(i,square.x + square.y * 8, board);
                             if (chessGame.legalMove(newBoard)) {
-                                int test = totalValue(depth - 1, -2147483648, 2147483647, newBoard);
+                                double test = totalValue(depth - 1, -2147483648, 2147483647, newBoard);
                                 if (test < min) {
                                     min = test;
                                     currentBest[0] = i;
                                     currentBest[1] = square.x + square.y * 8;
-                                    //System.out.println(min);
-                                    //System.out.println(currentBest[0] + "," + currentBest[1] + "," + currentBest[2] + "," + currentBest[3]);
                                 }
                             }
                         }

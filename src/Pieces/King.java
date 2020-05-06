@@ -11,7 +11,7 @@ public class King extends Piece {
     public King(boolean colour, int i) {
         super(colour, i);
         this.type = PieceType.King;
-        this.value = 100000;
+        this.value = 0;
     }
 
     public King(Piece piece) {

@@ -115,25 +115,27 @@ public class UI extends JPanel implements MouseListener, MouseMotionListener {
 
     @Override
     public void mouseReleased(MouseEvent e) {
-       if(chessGame.isBlackEngine() && !chessGame.getTurn()){
-           int[] nextMove = chessGame.blackPlayer.bestMove(chessGame);
-           chessGame.makeMove(nextMove[0], nextMove[1]);
-           repaint();
-       } else if(chessGame.isWhiteEngine() && chessGame.getTurn()){
-           int[] nextMove = chessGame.blackPlayer.bestMove(chessGame);
-           chessGame.makeMove(nextMove[0], nextMove[1]);
-           repaint();
-       } else if (e.getX() < 480 && e.getY() < 480) {
-            finX = e.getX();
-            finY = e.getY();
-            int curI = (firstX / 60) + (firstY / 60 * 8);
-            int finI = (finX / 60) + (finY / 60 * 8);
-            if (chessGame.getBoard().getSquares().get(curI).getPiece() != null) {
-                chessGame.makeMove(curI, finI);
-                repaint();
+        if (chessGame.getBoard().getTurn() && !chessGame.isWhiteEngine() || !chessGame.getBoard().getTurn() && !chessGame.isBlackEngine()) {
+            if (e.getX() < 480 && e.getY() < 480) {
+                finX = e.getX();
+                finY = e.getY();
+                int curI = (firstX / 60) + (firstY / 60 * 8);
+                int finI = (finX / 60) + (finY / 60 * 8);
+                if (chessGame.getBoard().getSquares().get(curI).getPiece() != null) {
+                    chessGame.makeMove(curI, finI);
+                    repaint();
+                }
+            } else {
+                setPromotions(e);
             }
-        } else {
-            setPromotions(e);
+        } else if (chessGame.isBlackEngine() && !chessGame.getBoard().getTurn()) {
+            int[] nextMove = chessGame.blackPlayer.bestMove(chessGame);
+            chessGame.makeMove(nextMove[0], nextMove[1]);
+            repaint();
+        } else if (chessGame.isWhiteEngine() && chessGame.getBoard().getTurn()) {
+            int[] nextMove = chessGame.whitePlayer.bestMove(chessGame);
+            chessGame.makeMove(nextMove[0], nextMove[1]);
+            repaint();
         }
     }
 

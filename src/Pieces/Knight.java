@@ -10,7 +10,7 @@ import java.util.List;
 public class Knight extends Piece {
     public Knight(boolean colour, int i) {
         super(colour, i);
-        this.value = 30;
+        this.value = 3;
         this.type = PieceType.Knight;
     }
 

@@ -10,7 +10,7 @@ public abstract class Piece {
     public Boolean colour; // White is True Black is False
     public Boolean hasMoved;
     private Board board;
-    protected int value;
+    protected double value;
     protected PieceType type;
 
     public Piece(Boolean colour, int i) {
@@ -34,7 +34,7 @@ public abstract class Piece {
 
     public abstract List<Square> possibleMoves(Board board, Square square);
 
-    public int getValue(){
+    public double getValue(){
         return this.value;
     }
 

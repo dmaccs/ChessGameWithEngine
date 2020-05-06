@@ -10,7 +10,7 @@ import java.util.List;
 public class Bishop extends Piece {
     public Bishop(boolean colour, int i) {
         super(colour, i);
-        this.value = 32;
+        this.value = 3.2;
         this.type = PieceType.Bishop;
     }
 

@@ -11,7 +11,7 @@ public class Queen extends Piece {
 
     public Queen(boolean colour, int i) {
         super(colour, i);
-        this.value = 90;
+        this.value = 9;
         this.type = PieceType.Queen;
     }
 
